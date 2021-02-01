@@ -1,25 +1,37 @@
+<script>
+    import CityCard from '../components/CityCard.svelte';
+    import page from 'page';
+    import { dispatch } from '../store';
+    let cities = ['Sofia', 'Plovdiv', 'Russe'];
+
+    function changeCurrentCity(city) {
+        return () => {
+            dispatch({
+                type: 'SET_CURRENT',
+                payload: city,
+            });
+            page('/');
+        };
+    }
+</script>
+
+<style>
+    nav {
+        height: 24px;
+        margin-bottom: 0;
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+</style>
+
 <nav>
-  <div>Favorites</div>
-  <a href="">Add</a>
+    <div>Favorites</div>
+    <a href="">Add</a>
 </nav>
 <main>
-  <section>
-    <aside>
-      <h3>Charleston, SC</h3>
-    </aside>
-    <aside>
-      <h3>New york, NY</h3>
-    </aside>
-    <aside>
-      <h3>San Francisco, CA</h3>
-    </aside>
-  </section>
+    <section>
+        {#each cities as city}
+            <CityCard city="{city}" on:click="{changeCurrentCity(city)}" />
+        {:else}No Favorites yet...{/each}
+    </section>
 </main>
-<style>
- nav {
-   height: 24px;
-   margin-bottom: 0;
-   margin-left: 8px;
-   margin-right: 8px;
- }
-</style>
