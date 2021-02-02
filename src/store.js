@@ -1,15 +1,22 @@
 import { writable } from 'svelte/store'
+import { unitTypes } from './lib/constants';
 
 export const store = writable({
-    current: 'Sofia'
+    city: 'Sofia',
+    units: unitTypes.metric
 });
 
 export const dispatch = (action) => new Promise(resolve => {
     store.update(state => {
         resolve();
-        if (action.type === 'SET_CURRENT') {
+        if (action.type === 'SET_CITY') {
             return {
-                ...state, current: action.payload
+                ...state, city: action.payload
+            }
+        }
+        if (action.type === 'SET_UNITS') {
+            return {
+                ...state, units: action.payload
             }
         }
     })

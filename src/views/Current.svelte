@@ -2,20 +2,34 @@
     import Weather from '../components/Weather.svelte';
     import { getJSON } from '../lib/async';
     import { onMount } from 'svelte';
-    import { store } from '../store';
+    import { store, dispatch } from '../store';
+    import { fade } from 'svelte/transition';
+    import { unitTypes, temperatureUnits } from '../lib/constants';
 
-    let weatherReport = {};
-    let unit = 'c';
+    let weatherReport = null;
+    let units = $store.units;
+
+    function changeUnits(unitType) {
+        return () => {
+            dispatch({
+                type: 'SET_UNITS',
+                payload: unitType,
+            });
+        };
+    }
 
     async function getWeather() {
-        const current = $store.current.toLowerCase().replace(' ', '');
+        const current = $store.city.toLowerCase().replace(' ', '');
 
-        return getJSON(`/api/weather?city=${current}&country=bg`).then((result) => ({
-            city: `${result.city_name}`,
-            temperature: `${result.temp}`,
-            icon: result.weather.icon,
-            description: result.weather.description,
-        }));
+        return getJSON(`/api/weather?city=${current}&country=bg&units=${unitTypes.metric}`).then(
+            (result) => ({
+                city: `${result.city_name}`,
+                temperature: `${result.temp}`,
+                icon: result.weather.icon,
+                description: result.weather.description,
+                baseUnits: unitTypes.metric,
+            })
+        );
     }
 
     onMount(async () => {
@@ -36,18 +50,20 @@
     }
 </style>
 
-<nav>
-    <div>
-        <a on:click|preventDefault="{() => (unit = 'f')}" href="/#">F</a>
-        |
-        <a on:click|preventDefault="{() => (unit = 'c')}" href="/#">C</a>
-    </div>
-    <a href="/favorites">Favorites</a>
-</nav>
-<main>
-    {#if !weatherReport}
-        Loading...
-    {:else}
-        <Weather {...weatherReport} unit="{unit}" />
-    {/if}
-</main>
+<div in:fade="{{ duration: 500 }}">
+    <nav>
+        <div>
+            <a on:click|preventDefault="{changeUnits(unitTypes.fahrenheit)}" href="/#">F</a>
+            |
+            <a on:click|preventDefault="{changeUnits(unitTypes.metric)}" href="/#">C</a>
+        </div>
+        <a href="/favorites">Favorites</a>
+    </nav>
+    <main>
+        {#if !weatherReport}
+            Loading...
+        {:else}
+            <Weather {...weatherReport} />
+        {/if}
+    </main>
+</div>
